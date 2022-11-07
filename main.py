@@ -1,12 +1,16 @@
-from playlist_finder import query, get_user_followers
+from playlist_finder import query
 import git
 from pathlib import Path
 import json
 from re import search
-from pprint import pprint
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 # Clone git repo
-remote = "***REMOVED***"
+remote = os.getenv("REMOTE")
 repo = git.Repo.clone_from(remote, 'tmp')
 
 with repo.config_writer() as git_config:
