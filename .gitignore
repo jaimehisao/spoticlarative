@@ -1,0 +1,7 @@
+tmp/
+.cache
+.cache-jaimehisao
+.idea/
+__pycache__/
+lol.txt
+output.txt
