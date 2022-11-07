@@ -8,7 +8,6 @@ import os
 
 load_dotenv()
 
-
 # Clone git repo
 remote = os.getenv("REMOTE")
 repo = git.Repo.clone_from(remote, 'tmp')
