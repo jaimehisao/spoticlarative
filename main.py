@@ -16,7 +16,6 @@ with repo.config_writer() as git_config:
     git_config.set_value('user', 'email', 'operations@hisao.org')
     git_config.set_value('user', 'name', 'Playlist-Bot-Prod')
 
-# Hisao, jojos, caro, anaoop, freddy, mario, thorsten, stevie
 users_to_store = ["jaimehisao",
                   "marijojos99",
                   "1279908833",  # caro
@@ -39,12 +38,6 @@ for user in results:
             original_plus_modded_names[playlist] = playlist.replace("/", "-")
         else:
             original_plus_modded_names[playlist] = playlist
-            """
-            tmp = playlist
-            del results[user][playlist]
-            playlist = playlist.replace("/", "-")
-            results[user][playlist] = tmp
-            """
 
         file_name = "tmp/" + user + "/" + original_plus_modded_names[playlist] + ".json"
 
@@ -65,12 +58,3 @@ for user in results:
             origin.push()
         else:
             print("No changes detected in " + user + "/" + playlist)
-
-    # repo.git.add('--all')
-    # count_modified_files = len(repo.remote("origin").repo.index.diff("HEAD"))
-    # count_staged_files = len(repo.index.diff("HEAD"))
-    # print(count_modified_files, count_staged_files)
-
-    # repo.git.add(all=True)
-    # repo.index.commit("Updated playlists for user: " + user)
-    # repo.remotes.origin.push()
