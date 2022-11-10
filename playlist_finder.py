@@ -32,7 +32,6 @@ for each track we store
 
 
 def get_user_followers():
-
     results = sp.current_user_following_users()
     pprint(results)
 
@@ -73,7 +72,6 @@ def query(users_to_store: [str]):
                                          "track_artist": track["track"]["artists"][0]["name"],
                                          "track_album": track["track"]["album"]["name"],
                                          "track_duration": track["track"]["duration_ms"],
-                                         "track_popularity": track["track"]["popularity"],
                                          "track_added_by": track["added_by"]["id"], "track_added_at": track["added_at"],
                                          "uri": track["track"]["uri"]}
                             results_from_queries[user][playlist["name"]]["tracks"].append(tmp_track)
