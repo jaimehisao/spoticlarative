@@ -1,7 +1,9 @@
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from pprint import pprint
+from dotenv import load_dotenv
 
+load_dotenv()
 auth_manager = SpotifyClientCredentials()
 # sp = spotipy.Spotify(auth_manager=auth_manager)
 scope = "user-library-read user-read-recently-played playlist-read-private playlist-read-collaborative user-follow-read"
