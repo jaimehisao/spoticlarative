@@ -24,7 +24,8 @@ users_to_store = ["jaimehisao",
                   "mariomoo",
                   "11131420233",  # thotta
                   "1292030678",  # stevie
-                  "1283325282"  # bruno
+                  "1283325282",  # bruno
+                  "anazerm28"
                   ]
 
 results = query(users_to_store)
