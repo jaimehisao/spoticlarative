@@ -16,6 +16,18 @@ with repo.config_writer() as git_config:
     git_config.set_value('user', 'email', 'operations@hisao.org')
     git_config.set_value('user', 'name', 'Playlist-Bot-Prod')
 
+users = {"jaimehisao": "jaimehisao",
+         "marijojos99": "marijojos99",
+         "1279908833": "caro",
+         "analaurdzz": "analaurdzz",
+         "1293929854": "freddy",
+         "mariomoo": "mariomoo",
+         "11131420233": "thotta",
+         "1292030678": "stevie",
+         "1283325282": "bruno",
+         "anazerm28": "anazerm28",
+         "aroquev00": "aroquev00"}
+
 users_to_store = ["jaimehisao",
                   "marijojos99",
                   "1279908833",  # caro
@@ -31,31 +43,31 @@ users_to_store = ["jaimehisao",
 results = query(users_to_store)
 
 for user in results:
-    Path("tmp/" + user).mkdir(parents=True, exist_ok=True)
+    real_user_name = users[user]
+    Path("tmp/" + real_user_name).mkdir(parents=True, exist_ok=True)
     original_plus_modded_names = {}
     for playlist in results[user]:
-
         if search("/", playlist):
             original_plus_modded_names[playlist] = playlist.replace("/", "-")
         else:
             original_plus_modded_names[playlist] = playlist
 
-        file_name = "tmp/" + user + "/" + original_plus_modded_names[playlist] + ".json"
+        file_name = "tmp/" + real_user_name + "/" + original_plus_modded_names[playlist] + ".json"
 
         try:
             with open(file_name, "r") as f:
                 previous = json.load(f)
         except FileNotFoundError:
             previous = {}
-            print("New playlist" + playlist)
+            print("New playlist " + playlist)
 
         if previous != results[user][playlist]:
-            print("Changes detected in " + user + "/" + playlist)
+            print("Changes detected in " + real_user_name + "/" + playlist)
             with open(file_name, "w") as f:
                 json.dump(results[user][playlist], f, indent=4)
-            repo.index.add([user + "/" + original_plus_modded_names[playlist] + ".json"])
-            repo.index.commit("Updating playlists for " + user)
-            origin = repo.remote(name='origin')
-            origin.push()
+            repo.index.add([real_user_name + "/" + original_plus_modded_names[playlist] + ".json"])
         else:
-            print("No changes detected in " + user + "/" + playlist)
+            print("No changes detected in " + real_user_name + "/" + playlist)
+        repo.index.commit("Updating playlists for " + real_user_name)
+        origin = repo.remote(name='origin')
+        origin.push()
