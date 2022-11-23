@@ -42,6 +42,8 @@ users_to_store = ["jaimehisao",
 
 results = query(users_to_store)
 
+changes_detected = False
+
 for user in results:
     real_user_name = users[user]
     Path("tmp/" + real_user_name).mkdir(parents=True, exist_ok=True)
@@ -61,13 +63,18 @@ for user in results:
             previous = {}
             print("New playlist " + playlist)
 
+        changes_detected = False
+
         if previous != results[user][playlist]:
             print("Changes detected in " + real_user_name + "/" + playlist)
             with open(file_name, "w") as f:
                 json.dump(results[user][playlist], f, indent=4)
             repo.index.add([real_user_name + "/" + original_plus_modded_names[playlist] + ".json"])
+            repo.index.commit("Updating playlists for " + real_user_name)
+            changes_detected = True
         else:
             print("No changes detected in " + real_user_name + "/" + playlist)
+    if changes_detected:
         repo.index.commit("Updating playlists for " + real_user_name)
         origin = repo.remote(name='origin')
         origin.push()
