@@ -1,0 +1,14 @@
+kind: pipeline
+name: Build and Push 
+
+steps:
+- name: build image for spoticlarative
+  image: plugins/docker
+  settings:
+    username: admin
+    password: Harbor12345
+    repo: registry.internal.hisao.org/prod/dnspropagator
+    registry: registry.internal.hisao.org
+    dockerfile: Dockerfile
+    tags:
+    - latest
