@@ -7,7 +7,7 @@ steps:
   settings:
     username: admin
     password: Harbor12345
-    repo: registry.internal.hisao.org/prod/dnspropagator
+    repo: registry.internal.hisao.org/prod/spoticlarative
     registry: registry.internal.hisao.org
     dockerfile: Dockerfile
     tags:
