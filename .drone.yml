@@ -4,6 +4,11 @@ name: Build and Push
 steps:
 - name: build image for spoticlarative
   image: plugins/docker
+  environment:
+     SPOTIFY:
+       from_secret: spotify-auth
+  commands:
+      - echo $SPOTIFY >> .env
   settings:
     username: admin
     password: Harbor12345
