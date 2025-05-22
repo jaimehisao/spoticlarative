@@ -58,14 +58,13 @@ def query(users_to_store: [str]):
                 results = sp.playlist(playlist["id"], fields="tracks,next")
 
                 if "tracks" in results.keys():
-                    tracks = results['tracks']['items']
-                    while "tracks" in results.keys() and results['tracks']['next']:
-                        results = sp.next(results['tracks'])
-                        tracks.extend(results['items'])
-
-                        if results['next']:
-                            results = sp.next(results)
-                            tracks.extend(results['items'])
+                    tracks_data = results['tracks'] # Use a dedicated variable for track pagination
+                    tracks = tracks_data['items']
+                    # Correctly paginate through tracks
+                    while tracks_data['next']:
+                        tracks_data = sp.next(tracks_data) # Fetch the next page of *tracks*
+                        tracks.extend(tracks_data['items'])
+                    # The erroneous block that mixed playlist and track pagination is now removed.
 
                     for track in tracks:
                         try:
@@ -77,9 +76,9 @@ def query(users_to_store: [str]):
                                          "track_added_by": track["added_by"]["id"], "track_added_at": track["added_at"],
                                          "uri": track["track"]["uri"]}
                             results_from_queries[user][playlist["name"]]["tracks"].append(tmp_track)
-                        except Exception:
-                            print("Error with track")
-                            print(track)
-                            print("Error with track")
+                        except (TypeError, KeyError, IndexError) as e:
+                            print(f"Error processing track details. Exception: {type(e).__name__} - {e}")
+                            print("Problematic track data:")
+                            pprint(track)
 
     return results_from_queries

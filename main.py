@@ -8,6 +8,8 @@ import os
 
 load_dotenv()
 
+overall_changes_made = False
+
 # Clone git repo
 remote = os.getenv("REMOTE")
 repo = git.Repo.clone_from(remote, "tmp")
@@ -46,9 +48,8 @@ users_to_store = [
 
 results = query(users_to_store)
 
-changes_detected = False
-
 for user in results:
+    user_has_playlist_changes = False
     real_user_name = users[user]
     Path("tmp/" + real_user_name).mkdir(parents=True, exist_ok=True)
     original_plus_modded_names = {}
@@ -73,8 +74,6 @@ for user in results:
             previous = {}
             print("New playlist " + playlist)
 
-        changes_detected = False
-
         if previous != results[user][playlist]:
             print("Changes detected in " + real_user_name + "/" + playlist)
             with open(file_name, "w") as f:
@@ -82,11 +81,16 @@ for user in results:
             repo.index.add(
                 [real_user_name + "/" + original_plus_modded_names[playlist] + ".json"]
             )
-            repo.index.commit("Updating playlists for " + real_user_name)
-            changes_detected = True
+            user_has_playlist_changes = True
         else:
             print("No changes detected in " + real_user_name + "/" + playlist)
-    if changes_detected:
+
+    if user_has_playlist_changes:
+        print(f"Committing changes for {real_user_name}")
         repo.index.commit("Updating playlists for " + real_user_name)
-        origin = repo.remote(name="origin")
-        origin.push()
+        overall_changes_made = True
+
+if overall_changes_made:
+    print("Pushing all changes to remote")
+    origin = repo.remote(name="origin")
+    origin.push()
