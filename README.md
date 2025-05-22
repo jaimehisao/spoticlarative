@@ -1,4 +1,6 @@
 # spoticlarative 
+[![Python CI & Test](https://github.com/jaimehisao/playlists/actions/workflows/ci.yml/badge.svg)](https://github.com/jaimehisao/playlists/actions/workflows/ci.yml)
+
 A tool that stores a user's public playlists using Git as a version control system. This way users can see how their playlists have developed over time.
 Playlists are updated every hour and added to Git if there is a change. 
 
