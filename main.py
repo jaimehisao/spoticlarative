@@ -8,17 +8,8 @@ import os
 
 load_dotenv()
 
-overall_changes_made = False
-
-# Clone git repo
-remote = os.getenv("REMOTE")
-repo = git.Repo.clone_from(remote, "tmp")
-
-with repo.config_writer() as git_config:
-    git_config.set_value("user", "email", "operations@hisao.org")
-    git_config.set_value("user", "name", "Playlist-Bot-Prod")
-
-users = {
+# Global constants (can be accessed by run_main_logic)
+USERS = {
     "jaimehisao": "jaimehisao",
     "marijojos99": "marijojos99",
     "1279908833": "caro",
@@ -33,7 +24,7 @@ users = {
     "1291740798": "marin",
 }
 
-users_to_store = [
+USERS_TO_STORE = [
     "jaimehisao",
     "marijojos99",
     "1279908833",  # caro
@@ -46,51 +37,81 @@ users_to_store = [
     "anazerm28",
 ]
 
-results = query(users_to_store)
+# Global variable for the repository, to be initialized in run_main_logic
+# This allows mocks to target 'main.repo' if git.Repo.clone_from is patched.
+repo = None
 
-for user in results:
-    user_has_playlist_changes = False
-    real_user_name = users[user]
-    Path("tmp/" + real_user_name).mkdir(parents=True, exist_ok=True)
-    original_plus_modded_names = {}
-    for playlist in results[user]:
-        if search("/", playlist):
-            original_plus_modded_names[playlist] = playlist.replace("/", "-")
-        else:
-            original_plus_modded_names[playlist] = playlist
+def run_main_logic():
+    global repo # To assign to the global 'repo' variable
+    overall_changes_made = False
 
-        file_name = (
-            "tmp/"
-            + real_user_name
-            + "/"
-            + original_plus_modded_names[playlist]
-            + ".json"
-        )
+    # Clone git repo
+    remote = os.getenv("REMOTE") # os.getenv will be mocked in tests
+    # git.Repo.clone_from will be mocked in tests to return a mock_repo_instance
+    repo = git.Repo.clone_from(remote, "tmp")
 
-        try:
-            with open(file_name, "r") as f:
-                previous = json.load(f)
-        except FileNotFoundError:
-            previous = {}
-            print("New playlist " + playlist)
+    # repo is now the (mocked) repo instance
+    with repo.config_writer() as git_config:
+        git_config.set_value("user", "email", "operations@hisao.org")
+        git_config.set_value("user", "name", "Playlist-Bot-Prod")
 
-        if previous != results[user][playlist]:
-            print("Changes detected in " + real_user_name + "/" + playlist)
-            with open(file_name, "w") as f:
-                json.dump(results[user][playlist], f, indent=4)
-            repo.index.add(
-                [real_user_name + "/" + original_plus_modded_names[playlist] + ".json"]
+    # main.query will be mocked in tests
+    results = query(USERS_TO_STORE)
+
+    for user_id_from_query in results:
+        user_has_playlist_changes = False
+        # USERS is the global dictionary
+        real_user_name = USERS[user_id_from_query]
+        
+        # pathlib.Path.mkdir will be mocked
+        Path("tmp/" + real_user_name).mkdir(parents=True, exist_ok=True)
+        original_plus_modded_names = {}
+        
+        for playlist_name_from_query in results[user_id_from_query]:
+            if search("/", playlist_name_from_query):
+                original_plus_modded_names[playlist_name_from_query] = playlist_name_from_query.replace("/", "-")
+            else:
+                original_plus_modded_names[playlist_name_from_query] = playlist_name_from_query
+
+            file_name = (
+                "tmp/"
+                + real_user_name
+                + "/"
+                + original_plus_modded_names[playlist_name_from_query]
+                + ".json"
             )
-            user_has_playlist_changes = True
-        else:
-            print("No changes detected in " + real_user_name + "/" + playlist)
+            
+            # builtins.open will be mocked
+            try:
+                with open(file_name, "r") as f:
+                    previous = json.load(f)
+            except FileNotFoundError:
+                previous = {}
+                print("New playlist " + playlist_name_from_query)
 
-    if user_has_playlist_changes:
-        print(f"Committing changes for {real_user_name}")
-        repo.index.commit("Updating playlists for " + real_user_name)
-        overall_changes_made = True
+            if previous != results[user_id_from_query][playlist_name_from_query]:
+                print("Changes detected in " + real_user_name + "/" + playlist_name_from_query)
+                with open(file_name, "w") as f:
+                    json.dump(results[user_id_from_query][playlist_name_from_query], f, indent=4)
+                
+                # repo.index.add, repo.index.commit will be called on the mock_repo_instance
+                repo.index.add(
+                    [real_user_name + "/" + original_plus_modded_names[playlist_name_from_query] + ".json"]
+                )
+                user_has_playlist_changes = True
+            else:
+                print("No changes detected in " + real_user_name + "/" + playlist_name_from_query)
 
-if overall_changes_made:
-    print("Pushing all changes to remote")
-    origin = repo.remote(name="origin")
-    origin.push()
+        if user_has_playlist_changes:
+            print(f"Committing changes for {real_user_name}")
+            repo.index.commit("Updating playlists for " + real_user_name)
+            overall_changes_made = True
+
+    if overall_changes_made:
+        print("Pushing all changes to remote")
+        # repo.remote().push will be called on the mock_repo_instance
+        origin = repo.remote(name="origin")
+        origin.push()
+
+if __name__ == '__main__':
+    run_main_logic()

@@ -3,3 +3,15 @@ A tool that stores a user's public playlists using Git as a version control syst
 Playlists are updated every hour and added to Git if there is a change. 
 
 Playlists are divided by user and stored in [here](https://github.com/jaimehisao/playlists)
+
+## Testing
+
+Install the dependencies (including testing tools):
+```bash
+pip install -r requirements.txt
+```
+
+Run the tests using pytest:
+```bash
+pytest
+```

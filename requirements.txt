@@ -1,3 +1,5 @@
 spotipy
 python-dotenv
 GitPython
+pytest
+pytest-mock
